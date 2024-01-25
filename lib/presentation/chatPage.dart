@@ -1,3 +1,4 @@
+import 'package:chat_app_mini_project/data/repository/sendMessages.dart';
 import 'package:chat_app_mini_project/domain/entity/chatText.dart';
 import 'package:chat_app_mini_project/domain/usecase/display.dart';
 import 'package:chat_app_mini_project/domain/usecase/openChat.dart';
@@ -70,7 +71,7 @@ class _chatPage extends State<chatPage> {
                                                   )
                                                 ,),
                                               subtitle: Text(textChat[i]['text']),
-                                              trailing: Text(textChat[i]['timestamp']),
+                                              trailing: Text(''),
                                             )
                                       ),
                                     ],
@@ -109,7 +110,11 @@ class _chatPage extends State<chatPage> {
                 ),
                 IconButton(
                   icon: Icon(Icons.send),
-                  onPressed: null,
+                  onPressed: (){
+                    setState(() {
+                      sendMessagesRepo().createMessage(chatText(id: widget.roomId, username: widget.username, text: messageController.text));
+                    });
+                  },
                 ),
               ],
             ),
