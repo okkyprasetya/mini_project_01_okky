@@ -6,8 +6,10 @@ class UserDataRepository{
   var roomChatDataSource = UserDataSource();
 
   Future<List> getUser(String username) async{
-    var jsonArray = jsonDecode(await roomChatDataSource.getUser(username));
-    var listChat = jsonArray['rooms'];
+    var jsonArray = jsonDecode(await roomChatDataSource.getUser(username))['data'];
+    var listChat = [];
+    listChat = List<String>.from(jsonArray['rooms']);
+
 
     return listChat;
   }

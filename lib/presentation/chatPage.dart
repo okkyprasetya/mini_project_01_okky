@@ -1,24 +1,31 @@
+import 'package:chat_app_mini_project/domain/entity/chatText.dart';
+import 'package:chat_app_mini_project/domain/usecase/display.dart';
+import 'package:chat_app_mini_project/domain/usecase/openChat.dart';
 import 'package:flutter/material.dart';
 
 class chatPage extends StatefulWidget {
+  final String roomId;
+  final String username;
+
+  const chatPage({super.key,required this.roomId, required this.username});
+  // List<String> messages = [];
+
   @override
   _chatPage createState() => _chatPage();
 }
 
 class _chatPage extends State<chatPage> {
-  List<String> messages = [];
-
   TextEditingController messageController = TextEditingController();
 
-  void _sendMessage() {
-    String message = messageController.text.trim();
-    if (message.isNotEmpty) {
-      setState(() {
-        messages.add(message);
-        messageController.clear();
-      });
-    }
-  }
+  // void _sendMessage() {
+  //   String message = messageController.text.trim();
+  //   if (message.isNotEmpty) {
+  //     setState(() {
+  //       textChat.add(message);
+  //       messageController.clear();
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +35,7 @@ class _chatPage extends State<chatPage> {
         backgroundColor: Color(0xFF075E54),
         iconTheme: IconThemeData(color: Color(0xFFFFFFFF)),
         actionsIconTheme: IconThemeData(color: Color(0xFFFFFFFF)),
-        title: Text('Contact Name',style: TextStyle(
+        title: Text('ChatApp',style: TextStyle(
           fontWeight: FontWeight.bold,
           color: Colors.white
         ),),
@@ -36,29 +43,46 @@ class _chatPage extends State<chatPage> {
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
+            child: FutureBuilder<Map<String, dynamic>>(
+                future: openRoomChat().execute(widget.roomId),
+                builder: (context,snapshot){
+                  var data = snapshot.data!;
+                  List textChat = data['messages'];
+                  return ListView(
+                      children: List.generate(textChat.length, (i) {
+                          return Container(
+                                margin: EdgeInsets.only(left: 50,right: 10,top: 10,bottom: 10),
+                                padding: EdgeInsets.only(left: 14,right: 14,top: 10,bottom: 10),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: (textChat[i]['username']  == "${widget.username}"?Colors.grey.shade200:Colors.blue[200]),
+                                ),
+                                child: Align(
+                                  alignment: (textChat[i]['username'] == "${widget.username}"?Alignment.topLeft:Alignment.topRight),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        child:
+                                            ListTile(
+                                              title: Text(textChat[i]['username'],style:
+                                                  TextStyle(
+                                                    fontWeight: FontWeight.bold
+                                                  )
+                                                ,),
+                                              subtitle: Text(textChat[i]['text']),
+                                              trailing: Text(textChat[i]['timestamp']),
+                                            )
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                          );
+                      }),
+                  );
 
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        messages[index],
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
+                },
+            )
+
           ),
           Container(
             padding: EdgeInsets.all(8),
@@ -85,7 +109,7 @@ class _chatPage extends State<chatPage> {
                 ),
                 IconButton(
                   icon: Icon(Icons.send),
-                  onPressed: _sendMessage,
+                  onPressed: null,
                 ),
               ],
             ),

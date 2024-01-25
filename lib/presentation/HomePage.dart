@@ -1,29 +1,36 @@
 import 'package:chat_app_mini_project/domain/usecase/display.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_app_mini_project/presentation/chatPage.dart';
-import 'package:flutter_chat_ui/flutter_chat_ui.dart';
-
-import 'package:chat_app_mini_project/domain/entity/roomChat.dart';
 
 class HomePage extends StatefulWidget {
   final String username;
-
   const HomePage({super.key, required this.username});
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
 class _HomePageState extends State<HomePage> {
-
-  @override
-  Widget build(BuildContext context) {
-    List<String> chatList = [];
+    List<String> listRoomChat = [];
+    List<String> roomList = [];
     Map<String,List<Map<String, dynamic>>> chatRoom = {};
+
 
     @override
     void initState(){
       super.initState();
-      GetUser().execute(widget.username);
+      GetUser().execute(widget.username).then((result){
+          setState(() {
+              roomList = result.cast<String>();
+          });
+      });
     }
+
+    void timeStap(){
+
+    }
+
+    @override
+    Widget build(BuildContext context){
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xFF075E54),
@@ -46,14 +53,17 @@ class _HomePageState extends State<HomePage> {
               var listRoomChat = snapshot.data!;
               return ListView(
                 children:
-                  List.generate(listRoomChat.length, (i) =>
-                      InkWell(
+                  List.generate(listRoomChat.length, (i) {
+                      return InkWell(
                         onTap: (){
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    chatPage(),
+                                    chatPage(
+                                        username: widget.username,
+                                        roomId: roomList[i],
+                                    ),
                           ));
                         },
                         child: Container(
@@ -70,10 +80,9 @@ class _HomePageState extends State<HomePage> {
                           ),
                           title: Text('${listRoomChat[i]['users'][1]}'),
                           subtitle: Text('${listRoomChat[i]['messages'].last['text'].toString()}'),
-                          trailing: Text('08.40 P.M'),
                         ),
                                             ),
-                      )),
+                      );})
               );
             }
             else if(snapshot.hasError){
